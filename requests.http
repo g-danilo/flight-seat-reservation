@@ -1,0 +1,17 @@
+### Create flight
+
+POST http://localhost:8080/admin/flights
+Content-Type:  application/json
+
+{
+  "flightNumber": "FR123",
+  "departureAirport": "DUB",
+  "departureTime": "2026-10-10T14:30:00+01:00[Europe/Dublin]",
+  "arrivalAirport": "LON",
+  "arrivalTime": "2026-10-10T15:45:00+01:00[Europe/London]",
+  "totalSeats": 180
+}
+
+### Delete flight
+
+DELETE http://localhost:8080/admin/flights/1
