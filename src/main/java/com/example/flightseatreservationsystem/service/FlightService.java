@@ -5,6 +5,9 @@ import com.example.flightseatreservationsystem.entity.Flight;
 import com.example.flightseatreservationsystem.repository.FlightRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.util.List;
+
 @Service
 public class FlightService {
 
@@ -33,5 +36,19 @@ public class FlightService {
         }
 
         flightRepository.deleteById(id);
+    }
+
+    public List<Flight> searchFlights(LocalDate date, String departureAirport, String arrivalAirport) {
+
+        List<Flight> flights = flightRepository.searchFlights(departureAirport, arrivalAirport);
+
+        if (date == null) {
+            return flights;
+        }
+
+        return flights.stream()
+                .filter(flight ->
+                        flight.getDepartureTime().toLocalDate().equals(date))
+                .toList();
     }
 }

@@ -1,5 +1,6 @@
-### Create flight
+## ADMIN operations
 
+### Create flight
 POST http://localhost:8080/admin/flights
 Content-Type:  application/json
 
@@ -12,6 +13,32 @@ Content-Type:  application/json
   "totalSeats": 180
 }
 
-### Delete flight
+### Create another flight
+POST http://localhost:8080/admin/flights
+Content-Type: application/json
 
+{
+  "flightNumber": "YU123",
+  "departureAirport": "BEG",
+  "departureTime": "2025-10-10T14:30:00+01:00[Europe/Belgrade]",
+  "arrivalAirport": "JFK",
+  "arrivalTime": "2025-10-11T15:45:00+01:00[America/New_York]",
+  "totalSeats": 200
+}
+
+### Delete flight
 DELETE http://localhost:8080/admin/flights/1
+
+## USER operations
+
+### Search all flights
+GET http://localhost:8080/flights
+
+### Search by route
+GET http://localhost:8080/flights/?departureAirport=DUB&arrivalAirport=LON
+
+### Search by date
+GET http://localhost:8080/flights/?date=2026-10-10
+
+### Search by route
+GET http://localhost:8080/flights/?date=2026-10-10&departureAirport=DUB&arrivalAirport=LON
