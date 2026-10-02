@@ -5,13 +5,7 @@ import jakarta.persistence.*;
 import java.time.ZonedDateTime;
 
 @Entity
-@Table(name = "bookings",
-        uniqueConstraints = {
-            @UniqueConstraint(
-                name = "uk_flight_seat",
-                columnNames = {"flight_id", "seat_number"}
-            )
-        })
+@Table(name = "bookings")
 public class Booking {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -1,11 +1,13 @@
 package com.example.flightseatreservationsystem.controller;
 
+import com.example.flightseatreservationsystem.dto.CreateBookingRequest;
+import com.example.flightseatreservationsystem.entity.Booking;
 import com.example.flightseatreservationsystem.entity.Flight;
+import com.example.flightseatreservationsystem.service.BookingService;
 import com.example.flightseatreservationsystem.service.FlightService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -15,9 +17,11 @@ import java.util.List;
 public class FlightController {
 
     private final FlightService flightService;
+    private final BookingService bookingService;
 
-    public FlightController(FlightService flightService) {
+    public FlightController(FlightService flightService, BookingService bookingService) {
         this.flightService = flightService;
+        this.bookingService = bookingService;
     }
 
     @GetMapping
@@ -26,4 +30,16 @@ public class FlightController {
                                       @RequestParam(required = false, name = "arrivalAirport") String arrivalAirport) {
         return flightService.searchFlights(date, departureAirport, arrivalAirport);
     }
+
+    @PostMapping("/{id}/bookings")
+    @ResponseStatus(HttpStatus.CREATED)
+    public Booking createBooking(@PathVariable Long id, @Valid @RequestBody CreateBookingRequest request) {
+        return bookingService.createBooking(id, request);
+    }
+
+    @GetMapping("/{id}/seats")
+    public List<Integer> getSeatAvailability(@PathVariable Long id) {
+        return bookingService.getSeatAvailability(id);
+    }
+
 }

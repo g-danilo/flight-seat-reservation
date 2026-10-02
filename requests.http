@@ -23,7 +23,7 @@ Content-Type: application/json
   "departureTime": "2025-10-10T14:30:00+01:00[Europe/Belgrade]",
   "arrivalAirport": "JFK",
   "arrivalTime": "2025-10-11T15:45:00+01:00[America/New_York]",
-  "totalSeats": 200
+  "totalSeats": 3
 }
 
 ### Delete flight
@@ -35,10 +35,25 @@ DELETE http://localhost:8080/admin/flights/1
 GET http://localhost:8080/flights
 
 ### Search by route
-GET http://localhost:8080/flights/?departureAirport=DUB&arrivalAirport=LON
+GET http://localhost:8080/flights?departureAirport=DUB&arrivalAirport=LON
 
 ### Search by date
-GET http://localhost:8080/flights/?date=2026-10-10
+GET http://localhost:8080/flights?date=2026-10-10
 
 ### Search by route
-GET http://localhost:8080/flights/?date=2026-10-10&departureAirport=DUB&arrivalAirport=LON
+GET http://localhost:8080/flights?date=2026-10-10&departureAirport=DUB&arrivalAirport=LON
+
+### Get available seats for a flight
+GET http://localhost:8080/flights/1/seats
+
+### Create a booking
+POST http://localhost:8080/flights/1/bookings
+Content-Type: application/json
+
+{
+  "passengerName": "Danilo Gasljevic",
+  "seatNumber": 10
+}
+
+### Cancel booking
+DELETE http://localhost:8080/bookings/1

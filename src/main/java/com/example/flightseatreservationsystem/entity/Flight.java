@@ -11,11 +11,9 @@ public class Flight {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    //TODO think if this should be unique, flights have same numbers but different date
     @Column(nullable = false, unique = true)
     private String flightNumber;
 
-    //TODO think if i need depratureCity, airport is unique, city is maybe redundant
     @Column(nullable = false)
     private String departureAirport;
 
