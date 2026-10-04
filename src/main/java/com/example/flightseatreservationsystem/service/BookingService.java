@@ -5,7 +5,8 @@ import com.example.flightseatreservationsystem.entity.ActiveSeat;
 import com.example.flightseatreservationsystem.entity.Booking;
 import com.example.flightseatreservationsystem.entity.BookingStatus;
 import com.example.flightseatreservationsystem.entity.Flight;
-import com.example.flightseatreservationsystem.exception.SeatAlreadyBookedException;
+import com.example.flightseatreservationsystem.exception.ConflictException;
+import com.example.flightseatreservationsystem.exception.ResourceNotFoundException;
 import com.example.flightseatreservationsystem.repository.ActiveSeatRepository;
 import com.example.flightseatreservationsystem.repository.BookingRepository;
 import com.example.flightseatreservationsystem.repository.FlightRepository;
@@ -39,17 +40,17 @@ public class BookingService {
     @Transactional
     public Booking createBooking(Long flightId, CreateBookingRequest request) {
         Flight flight = flightRepository.findById(flightId).orElseThrow(() ->
-                new RuntimeException("Flight not found"));
+                new ResourceNotFoundException("Flight not found. Flight id: %d".formatted(flightId)));
 
         ZonedDateTime now = ZonedDateTime.now(flight.getDepartureTime().getZone());
         ZonedDateTime cutoff = flight.getDepartureTime().minusMinutes(BOOKING_CUTOFF_MINUTES);
 
         if(!now.isBefore(cutoff)) {
-            throw new RuntimeException("Booking window has closed");
+            throw new ConflictException("Booking window has closed");
         }
 
         if(request.seatNumber() > flight.getTotalSeats()) {
-            throw new RuntimeException("Invalid seat number");
+            throw new ConflictException("Invalid seat number");
         }
 
         Booking booking = new Booking();
@@ -68,7 +69,7 @@ public class BookingService {
         try {
             activeSeatRepository.saveAndFlush(activeSeat);
         } catch (DataIntegrityViolationException e) {
-            throw new SeatAlreadyBookedException();
+            throw new ConflictException("Seat already booked");
         }
         return booking;
     }
@@ -82,7 +83,7 @@ public class BookingService {
 
     public List<Integer> getSeatAvailability(Long flightId) {
         Flight flight = flightRepository.findById(flightId).orElseThrow(() ->
-                new RuntimeException("Flight not found"));
+                new ResourceNotFoundException("Flight not found. Flight id: %d".formatted(flightId)));
 
         Set<Integer> unavailableSeats = activeSeatRepository
                 .findByFlightId(flightId)
@@ -100,23 +101,23 @@ public class BookingService {
     @Transactional
     public void cancelBooking(Long bookingId) {
         Booking booking = bookingRepository.findById(bookingId).orElseThrow(() ->
-                                new RuntimeException("Booking not found"));
+                new ResourceNotFoundException("Booking not found. Booking id: %d".formatted(bookingId)));
 
         if (booking.getBookingStatus() == BookingStatus.HELD || booking.getBookingStatus() == BookingStatus.CONFIRMED) {
             booking.setBookingStatus(BookingStatus.CANCELLED);
             activeSeatRepository.deleteByBookingId(bookingId);
         } else {
-            throw new RuntimeException("This booking cannot be canceled");
+            throw new ConflictException("This booking cannot be canceled");
         }
     }
 
     @Transactional
     public void confirmBooking(Long bookingId) {
         Booking booking = bookingRepository.findById(bookingId).orElseThrow(() ->
-                new RuntimeException("Booking not found"));
+                new ResourceNotFoundException("Booking not found. Booking id: %d".formatted(bookingId)));
 
         if (booking.getBookingStatus() != BookingStatus.HELD) {
-            throw new RuntimeException("Only held bookings can be confirmed");
+            throw new ConflictException("Only held bookings can be confirmed");
         }
 
         ZonedDateTime now = ZonedDateTime.now(booking.getHoldExpiresAt().getZone());
@@ -124,7 +125,7 @@ public class BookingService {
             booking.setBookingStatus(BookingStatus.EXPIRED);
             activeSeatRepository.deleteByBookingId(bookingId);
             bookingRepository.save(booking);
-            throw new RuntimeException("Booking expired");
+            throw new ConflictException("Booking expired");
         }
 
         booking.setBookingStatus(BookingStatus.CONFIRMED);

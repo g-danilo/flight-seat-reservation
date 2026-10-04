@@ -2,6 +2,7 @@ package com.example.flightseatreservationsystem.service;
 
 import com.example.flightseatreservationsystem.dto.CreateFlightRequest;
 import com.example.flightseatreservationsystem.entity.Flight;
+import com.example.flightseatreservationsystem.exception.ResourceNotFoundException;
 import com.example.flightseatreservationsystem.repository.FlightRepository;
 import org.springframework.stereotype.Service;
 
@@ -32,7 +33,7 @@ public class FlightService {
 
     public void deleteFlight(Long id) {
         if (!flightRepository.existsById(id)) {
-            throw new RuntimeException("Flight not found");
+            throw new ResourceNotFoundException("Flight not found. Flight id: %d".formatted(id));
         }
 
         flightRepository.deleteById(id);
