@@ -20,4 +20,10 @@ public class BookingController {
     public void cancelBooking(@PathVariable Long id) {
         bookingService.cancelBooking(id);
     }
+
+    @PostMapping("/{id}/confirm")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void confirmBooking(@PathVariable Long id) {
+        bookingService.confirmBooking(id);
+    }
 }

@@ -97,15 +97,37 @@ public class BookingService {
 
     }
 
-    //TODO reject expired
     @Transactional
     public void cancelBooking(Long bookingId) {
         Booking booking = bookingRepository.findById(bookingId).orElseThrow(() ->
                                 new RuntimeException("Booking not found"));
-        booking.setBookingStatus(BookingStatus.CANCELLED);
 
-        activeSeatRepository.deleteByBookingId(bookingId);
+        if (booking.getBookingStatus() == BookingStatus.HELD || booking.getBookingStatus() == BookingStatus.CONFIRMED) {
+            booking.setBookingStatus(BookingStatus.CANCELLED);
+            activeSeatRepository.deleteByBookingId(bookingId);
+        } else {
+            throw new RuntimeException("This booking cannot be canceled");
+        }
     }
 
-    //TODO add conirmf
+    @Transactional
+    public void confirmBooking(Long bookingId) {
+        Booking booking = bookingRepository.findById(bookingId).orElseThrow(() ->
+                new RuntimeException("Booking not found"));
+
+        if (booking.getBookingStatus() != BookingStatus.HELD) {
+            throw new RuntimeException("Only held bookings can be confirmed");
+        }
+
+        ZonedDateTime now = ZonedDateTime.now(booking.getHoldExpiresAt().getZone());
+        if (!now.isBefore(booking.getHoldExpiresAt())) {
+            booking.setBookingStatus(BookingStatus.EXPIRED);
+            activeSeatRepository.deleteByBookingId(bookingId);
+            bookingRepository.save(booking);
+            throw new RuntimeException("Booking expired");
+        }
+
+        booking.setBookingStatus(BookingStatus.CONFIRMED);
+        bookingRepository.save(booking);
+    }
 }
