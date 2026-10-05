@@ -57,3 +57,6 @@ Content-Type: application/json
 
 ### Cancel booking
 DELETE http://localhost:8080/bookings/1
+
+### Confirm booking
+POST http://localhost:8080/bookings/1/confirm

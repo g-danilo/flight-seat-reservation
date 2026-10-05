@@ -23,6 +23,11 @@ public class FlightService {
     }
 
     public Flight createFlight(CreateFlightRequest request) {
+
+        if (flightRepository.existsByFlightNumber(request.flightNumber())) {
+            throw new ConflictException("Flight already exists");
+        }
+
         Flight flight = new Flight();
 
         flight.setFlightNumber(request.flightNumber());

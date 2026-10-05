@@ -19,4 +19,6 @@ public interface FlightRepository extends JpaRepository<Flight, Long> {
             @Param("departureAirport") String departureAirport,
             @Param("arrivalAirport") String arrivalAirport
     );
+
+    boolean existsByFlightNumber(String flightNumber);
 }
