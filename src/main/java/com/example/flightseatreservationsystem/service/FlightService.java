@@ -2,7 +2,9 @@ package com.example.flightseatreservationsystem.service;
 
 import com.example.flightseatreservationsystem.dto.CreateFlightRequest;
 import com.example.flightseatreservationsystem.entity.Flight;
+import com.example.flightseatreservationsystem.exception.ConflictException;
 import com.example.flightseatreservationsystem.exception.ResourceNotFoundException;
+import com.example.flightseatreservationsystem.repository.BookingRepository;
 import com.example.flightseatreservationsystem.repository.FlightRepository;
 import org.springframework.stereotype.Service;
 
@@ -13,9 +15,11 @@ import java.util.List;
 public class FlightService {
 
     private final FlightRepository flightRepository;
+    private final BookingRepository bookingRepository;
 
-    public FlightService(FlightRepository flightRepository) {
+    public FlightService(FlightRepository flightRepository, BookingRepository bookingRepository) {
         this.flightRepository = flightRepository;
+        this.bookingRepository = bookingRepository;
     }
 
     public Flight createFlight(CreateFlightRequest request) {
@@ -34,6 +38,10 @@ public class FlightService {
     public void deleteFlight(Long id) {
         if (!flightRepository.existsById(id)) {
             throw new ResourceNotFoundException("Flight not found. Flight id: %d".formatted(id));
+        }
+
+        if (bookingRepository.existsByFlightId(id)) {
+            throw new ConflictException("Flight cannot be deleted because there are active bookings. Flight id: %d".formatted(id));
         }
 
         flightRepository.deleteById(id);

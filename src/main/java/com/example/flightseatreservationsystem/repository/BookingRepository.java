@@ -22,4 +22,6 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     int expireBookings(@Param("now")ZonedDateTime now);
 
     List<Booking> findByFlightIdAndBookingStatusIn(Long flightId, List<BookingStatus> bookingStatuses);
+
+    boolean existsByFlightId(Long flightId);
 }
